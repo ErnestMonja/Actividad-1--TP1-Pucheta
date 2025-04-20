@@ -13,38 +13,38 @@ pkg load io;
 % trabajarlo en Octave y se guardaron los datos de la tabla en las siguientes
 % variables:
 data = xlsread('Curvas_Medidas_RLC_2025.xlsx');
-    t  = data(1:end, 1);         % Tiempo.
-    I  = data(1:end, 2);         % Corriente en el circuito.
-    Vc = data(1:end, 3);         % Caída de tensión en el capacitor.
-    Ve = data(1:end, 3);         % Tensión de alimentación ( Ve(t) = u(t) ).
-    Vr = data(1:end, 5);         % Caída de tensión en la resistencia, salida.
+    t  = data(1:end, 1);        % Tiempo.
+    I  = data(1:end, 2);        % Corriente en el circuito.
+    Vc = data(1:end, 3);        % Caída de tensión en el capacitor.
+    Ve = data(1:end, 3);        % Tensión de alimentación ( Ve(t) = u(t) ).
+    Vr = data(1:end, 5);        % Caída de tensión en la resistencia, salida.
 
 %   Realizo los gráficos de las variables dadas en el archivo de excel para
 % observar el comportamiento del sistema:
 figure(1);
-subplot(4,1,1);                  % Grafico la corriente I(t)
+subplot(4,1,1);                 % Grafico la corriente I(t)
 plot(t, I);
 title('Corriente');
 xlabel('Tiempo [s]');
 ylabel('Corriente [A]');
 grid on
 
-subplot(4,1,2);                  % Grafico la tensión del capacitor Vc(t)
+subplot(4,1,2);                 % Grafico la tensión del capacitor Vc(t)
 plot(t, Vc, 'red');
 title('Caida de tensión en el capacitor');
 xlabel('Tiempo [s]');
 ylabel('Voltaje [V]');
 grid on
 
-subplot(4,1,3);                   % Grafico la tensión de entrada Ve(t) = u(t)
+subplot(4,1,3);                  % Grafico la tensión de entrada Ve(t) = u(t)
 plot(t, Ve, 'blue');
 title('Tensión de entrada');
 xlabel('Tiempo [s]');
 ylabel('Voltaje [V]');
 grid on
 
-subplot(4,1,4);                   % Grafico la caida de tensión en la resistencia
-plot(t, Vr, 'green');             % Vr(t)
+subplot(4,1,4);                  % Grafico la caida de tensión en la resistencia
+plot(t, Vr, 'green');            % Vr(t)
 title('Caída de tensión en la resistencia');
 xlabel('Tiempo [s]');
 ylabel('Voltaje [V]');
@@ -74,7 +74,7 @@ grid on
 
 %   Vc_util representa la salida de nuestro sistema sin retardos y sin cambios
 % de polaridad por la entrada. Dada la salida Vc_util, existen diferentes formas
-% de obtener las constantes de tiempo T1 y T2 que definen a los polos del
+% de obtener las constantes de tiempo T1, T2 y T3 que definen a los polos del
 % sistema y consecuentemente los parámetros R, L y C del circuito.
 
 %   Se propone estudiar y aplicar el método propuesto por Lei Chen en su
@@ -86,9 +86,9 @@ grid on
 % polos el cual es el caso de la función de transferencia de un circuito RLC
 % es el de nuestro caso. Esta función es de la forma:
 
-%   Vc             1/LC           Fórmula según            (T3*s + 1)
+%   Vc            RC*s            Fórmula según            (T3*s + 1)
 %  ---- = -------------------- = ---------------> = K ----------------------
-%   Ve    s^2 + (R/L)*s + 1/LC        Chen             (T1*s + 1)(T2*s + 2)
+%   Ve     (LC)s^2 + RC*s + 1        Chen             (T1*s + 1)(T2*s + 2)
 
 %   Chen nos indica que debemos elegir 3 puntos igualmente espaciados para
 % aplicar su método. Para ello y observando la tabla del Excel + gráficos, vemos
@@ -133,11 +133,10 @@ T1 = real((-t_1/log(alpha1)));
 T2 = real((-t_1/log(alpha2)));
 T3 = real((beta*(T1 - T2) + T1));
 
-%   Una vez obtenidas las constantes T1, T2 Y T3 (Esta última no será
-% considerada ya que el circuito RLC no cuenta con ceros), se tiene que la
-% función de transferencia es igual a:
+%   Una vez obtenidas las constantes T1, T2 y T3, se tiene que la función de
+% transferencia es igual a:
 s = tf('s');
-FdT_CHEN = K/((s*T1 + 1)*(s*T2 + 1))
+FdT_CHEN = (K*(s*T3 + 1))/((s*T1 + 1)*(s*T2 + 1))
 FdT_CHEN_RESP = step(12*FdT_CHEN, t_util);
 
 %   Se propone ver como difiere la aproximación con la salida original dada por
@@ -156,30 +155,30 @@ grid on;
 %   Con esta función en mente, podemos proceder a obtener los parámetros R, L y
 % C del circuito planteado, donde:
 
-%   Vc             1                                1
-%  ---- = ----------------------  =  --------------------------------
-%   Ve     (LC)s^2 + RC*s + 1         4.37e-09 s^2 + 0.0004907 s + 1
+%   Vc            RC*s                        (6.822e-06)*s + 1
+%  ---- = ----------------------  =  -----------------------------------
+%   Ve     (LC)s^2 + RC*s + 1         (4.37e-09)*s^2 + 0.0004907*s + 1
 
 %   Nótese que el valor de la resistencia se puede inferir facilmente de
 % acuerdo a los valores de la tabla ya que se tomaron mediciones de tensión sobre
 % la resistencia y corriente de la malla, tal que si tomamos el valor en la
 % posición, por ejemplo:
-R = data(5001,5)/data(5001,2)            % R = 220 [Ω]
+R = data(5001,5)/data(5001,2)           % R = 220 [Ω]
 
 %   Comparando el segundo término de los denominadores podemos obtener el valor
 % del capacitor como:
-C = 0.0004907/R                          % C = 2,2305 [uF]
+C = 0.0004907/R                         % C = 2,2305 [uF]
 
 %   Por último, comparando el valor del primer termino de ambos denominadores,
 % se tiene que:
-L = 4.37e-09/C                           % L = 1,9592 [mHy]
+L = 4.37e-09/C                          % L = 1,9592 [mHy]
 
 
 %----------------------------------O--------------------------------------------
 
-%   Se tiene que en este item, se pudieron obtener los valores de un circuito 
+%   Se tiene que en este item, se pudieron obtener los valores de un circuito
 % RLC tomando a Vc(t) como salida del sistema y luego mediante una aproximación
-% con el método de Lei Chen, se pudieron obtener los valores de las constantes 
+% con el método de Lei Chen, se pudieron obtener los valores de las constantes
 % de tiempo que definen a los polos de la función de transferencia aproximada y
 % consecuentemente, tras una comparación con la función de transferencia de un
 % circuito RLC, se dedujeron facilmente los parámetros RLC.

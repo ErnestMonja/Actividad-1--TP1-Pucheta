@@ -59,11 +59,12 @@ Tl = linspace(0, 0, punt_tot);
 %   Nótese que se inicializaron u y Tl en 0 para luego habilitarlos con el la
 % siguientes líneas de cógido ya analizadas en el item 1:
 u (t > 0.01) = 12;
-Tl(t > 0.06) = 1.4*10^(-3);
+Tl(t > 0.06) = 1.35*10^(-3);
 
 %   El valor de Tl se eligio de acuerdo a la prueba y error de valores, donde
-% tras multiples intentos, se determino que Tl = 1.4 x 10^(-3) es el valor de
+% tras multiples intentos, se determino que Tl = 1.35 x 10^(-3) es el valor de
 % torque maximo el cual el motor soporta.
+
 %   Una vez obtenidos los parámetros para la simulación, tendremos que elegir
 % las condiciones iniciales del sistema, donde se tendrá que el capacitor no
 % tiene una tensión inicial tanto como el inductor no tiene una corriente
@@ -90,7 +91,7 @@ for i = 1:(punt_tot-1);
     Theta(i+1) = x(3);
 end
 
-%   Finalmente grafico la entrada, salida y demas variables del sistema:
+%   Finalmente grafico las entradas y salidas del sistema:
 figure(1);
 
 subplot(4,1,1);                            % Grafico la velocidad angular Wr(t)
@@ -114,7 +115,7 @@ xlabel('Tiempo [s]');
 ylabel('Newton por Metro [N.m]');
 grid on
 
-subplot(4,1,4);                            % Grafico ángulo de giro Theta(y)
+subplot(4,1,4);                            % Grafico ángulo de giro Theta(t)
 plot(t, Theta, 'green');
 title('Angulo de giro');
 xlabel('Tiempo [s]');

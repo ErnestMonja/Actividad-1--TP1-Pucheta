@@ -4,12 +4,14 @@
 % ITEM N°2:
 close all; clear all; history -c; clc;
 pkg load control;
-% pkg install -forge io
 pkg load io;
+%   Recuerde instalar el paquete IO de no tenerlo instalado, esto es:
+% pkg install -forge io
 
-% Como indica la consigna, se tiene que leer los archivos guardados en un archivos
-% de Excel en formato .xls, al cual se paso a .xlsx para poder trabajarlo en
-% Octave y se guardaron los datos de la tabla en las siguientes variables:
+%   Como indica la consigna, se tiene que leer los archivos guardados en un
+% archivos de Excel en formato .xls, al cual se paso a .xlsx para poder
+% trabajarlo en Octave y se guardaron los datos de la tabla en las siguientes
+% variables:
 data = xlsread('Curvas_Medidas_RLC_2025.xlsx');
     t  = data(1:end, 1);         % Tiempo.
     I  = data(1:end, 2);         % Corriente en el circuito.
@@ -17,9 +19,9 @@ data = xlsread('Curvas_Medidas_RLC_2025.xlsx');
     Ve = data(1:end, 3);         % Tensión de alimentación ( Ve(t) = u(t) ).
     Vr = data(1:end, 5);         % Caída de tensión en la resistencia, salida.
 
-% Realizo los gráficos de las variables dadas en el archivo de excel para
+%   Realizo los gráficos de las variables dadas en el archivo de excel para
 % observar el comportamiento del sistema:
-figure;
+figure(1);
 subplot(4,1,1);                  % Grafico la corriente I(t)
 plot(t, I);
 title('Corriente');
@@ -49,14 +51,14 @@ ylabel('Voltaje [V]');
 grid on
 
 %   Vemos que se trata a un esquema similar al que muestra el enunciado de la
-% consigna donde se nos pedira en base a la tensión del capacitor como salida,
-% encontrar los parámetros R, L y C del circuito. Para ello se nos pide emplear
-% el método de la respuesta al escalón, tomando como salida la tensión en el
-% capacitor.
+% actividad donde en este item, se nos pide encontrar los parámetros R, L y C
+% del circuito utilizando a Ve como entrada y Vc como salida. Para ello se nos
+% pide emplear el método de la respuesta al escalón.
+
 %   Primero es conveniente transformar la salida del sistema (tensión del
 % capacitor) a una forma donde no se tenga el retardo propio de 0.01 [s] y que
-% termine cuando se cambie la polaridad de la entrada Ve(t). Para ello se propone
-% la siguiente linea de codigo:
+% termine cuando se cambie la polaridad de la entrada Ve(t). Para ello se
+% plantea lo siguiente:
 delay = 0.01;
 ind_util = find(t >= 0.01 & t <= 0.025);
 t_util = t(ind_util) - delay;
@@ -70,11 +72,15 @@ xlabel('Tiempo [s]');
 ylabel('Voltaje [V]');
 grid on
 
-%   Ya obtuvimos la salida del sistema, por lo tanto se tiene que existe una
-% forma de obtener las constantes de tiempo T1 y T2 que definen a los polos del
-% sistema y consecuentemente a los parámetros R, L y C del circuito, es mediante
-% el método propuesto por Lei Chen. En este método se propone tomar 3 puntos
-% equiespaciados de la salida del sistema ante una respuesta escalón.
+%   Vc_util representa la salida de nuestro sistema sin retardos y sin cambios
+% de polaridad por la entrada. Dada la salida Vc_util, existen diferentes formas
+% de obtener las constantes de tiempo T1 y T2 que definen a los polos del
+% sistema y consecuentemente los parámetros R, L y C del circuito.
+
+%   Se propone estudiar y aplicar el método propuesto por Lei Chen en su
+% artículo académico el cual se puede estudiar de forma más detallada en el
+% repositorio de Github de este código.
+
 %   El apartado 5 del artículo de Chen describe el caso general para obtener las
 % constantes de tiempo de un sistema de 2do orden donde se tienen 1 cero y 2
 % polos el cual es el caso de la función de transferencia de un circuito RLC
@@ -84,15 +90,17 @@ grid on
 %  ---- = -------------------- = ---------------> = K ----------------------
 %   Ve    s^2 + (R/L)*s + 1/LC        Chen             (T1*s + 1)(T2*s + 2)
 
-%   Chen nos indica que debemos elegir 3 puntos igualmente espaciados para aplicar
-% su algoritmo. Para ello y observando la tabla del Excel + gráficos, vemos que:
+%   Chen nos indica que debemos elegir 3 puntos igualmente espaciados para
+% aplicar su método. Para ello y observando la tabla del Excel + gráficos, vemos
+% que para:
 %      t = 0,0100 [s] ---> y(t) = Vc(t) = 0 [V]
 %      t = 0,0130 [s] ---> y(t) = Vc(t) = 11,9759 [V]
 %      t = 0,0193 [s] ---> y(t) = Vc(t) = 12 [V]
 %      t = 0,0500 [s] ---> y(t) = Vc(t) = 12 [V]
 %   Se observa que donde ocurre el transitorio de al función se da en el
 % intervalo [0,1 ; 0,13] donde se tienen 300 valores según la tabla de excel de
-% entremedio. Por lo tanto elegimos con un criterio razonable que:
+% entremedio. Se proponen los siguientes puntos de operación para el método de
+% Chen:
 t_1 = data(1023,1) - delay;
 y_1 = data(1023,3);
 
@@ -103,9 +111,9 @@ t_3 = data(1067,1) - delay;
 y_3 = data(1067,3);
 
 %   Se selecciona un 4to punto de operación. Esto es debido a que el método de
-% Chen solo funciona para y(inf) = 1, y para ello es conveniente elegir un punto
-% justo donde la gráfica de Ve(t) cambie de +12 [V] a -12 [V], y este punto se
-% encuentra en el valor t = 0,05 [s] tal que:
+% Chen solo funciona para y(inf) = 1 lo que implica una K = 1. Para ello es
+% conveniente elegir el punto justo antes que la gráfica de Ve(t) cambie de +12
+% [V] a -12 [V], y este punto se encuentra en el valor t = 0,05 [s] tal que:
 t_ss = data(5000,1) - delay
 y_ss = data(5000,3)
 
@@ -125,14 +133,15 @@ T1 = real((-t_1/log(alpha1)));
 T2 = real((-t_1/log(alpha2)));
 T3 = real((beta*(T1 - T2) + T1));
 
-%   Dado que Chen propuso como calcular la Función de transferencia mediante las
-% constante de tiempo T1, T2 y T3. Se propone ver como difiere la aproximación
-% con la salida origial dada por Vc_util, tal que:
+%   Una vez obtenidas las constantes T1, T2 Y T3 (Esta última no será
+% considerada ya que el circuito RLC no cuenta con ceros), se tiene que la
+% función de transferencia es igual a:
 s = tf('s');
 FdT_CHEN = K/((s*T1 + 1)*(s*T2 + 1))
 FdT_CHEN_RESP = step(12*FdT_CHEN, t_util);
 
-%   Comparamos la respuesta inferida con los valores de la tabla
+%   Se propone ver como difiere la aproximación con la salida original dada por
+% Vc_util desde el Excel, esto es:
 figure(3);
 plot(t_util, FdT_CHEN_RESP, 'green', t_util, Vc_util, 'red');
 title('Caída de tensión en el capacitor');
@@ -141,18 +150,17 @@ ylabel('Voltaje [V]');
 legend('Respuesta obtenida por el método de Chen', 'Respuesta Original obtenida del Excel');
 grid on;
 
-%   Se observa un error entre ambas gráficas el cual es a fines prácticos, casi
-% nulo, lo que es un buen indicio de que el valor de los puntos escogidos y su
+%   Se observa un error entre ambas gráficas, el cual a fines prácticos, es casi
+% nulo, lo que es un buen indicador de que el valor de los puntos escogidos y su
 % separación es correcta para aproximar y obtener la función de transferencia.
 %   Con esta función en mente, podemos proceder a obtener los parámetros R, L y
 % C del circuito planteado, donde:
 
 %   Vc             1                                1
 %  ---- = ----------------------  =  --------------------------------
-%   Ve     (LC)s^2 + RC*s + 1         4.14e-09 s^2 + 0.0004903 s + 1
+%   Ve     (LC)s^2 + RC*s + 1         4.37e-09 s^2 + 0.0004907 s + 1
 
-%   Comparando denominadores, se tiene que podemos resolver los parámetros del
-% circuito. Nótese que el valor de la resistencia se puede inferir facilmente de
+%   Nótese que el valor de la resistencia se puede inferir facilmente de
 % acuerdo a los valores de la tabla ya que se tomaron mediciones de tensión sobre
 % la resistencia y corriente de la malla, tal que si tomamos el valor en la
 % posición, por ejemplo:
@@ -160,8 +168,18 @@ R = data(5001,5)/data(5001,2)            % R = 220 [Ω]
 
 %   Comparando el segundo término de los denominadores podemos obtener el valor
 % del capacitor como:
-C = 0.0004903/R                          % C = 2,2286 [uF]
+C = 0.0004907/R                          % C = 2,2305 [uF]
 
 %   Por último, comparando el valor del primer termino de ambos denominadores,
 % se tiene que:
-L = 4.14e-09/C                           % L = 1,8576 [mHy]
+L = 4.37e-09/C                           % L = 1,9592 [mHy]
+
+
+%----------------------------------O--------------------------------------------
+
+%   Se tiene que en este item, se pudieron obtener los valores de un circuito 
+% RLC tomando a Vc(t) como salida del sistema y luego mediante una aproximación
+% con el método de Lei Chen, se pudieron obtener los valores de las constantes 
+% de tiempo que definen a los polos de la función de transferencia aproximada y
+% consecuentemente, tras una comparación con la función de transferencia de un
+% circuito RLC, se dedujeron facilmente los parámetros RLC.

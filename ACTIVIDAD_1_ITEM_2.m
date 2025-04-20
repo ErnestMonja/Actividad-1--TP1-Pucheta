@@ -16,27 +16,27 @@ data = xlsread('Curvas_Medidas_RLC_2025.xlsx');
     t  = data(1:end, 1);        % Tiempo.
     I  = data(1:end, 2);        % Corriente en el circuito.
     Vc = data(1:end, 3);        % Caída de tensión en el capacitor.
-    Ve = data(1:end, 3);        % Tensión de alimentación ( Ve(t) = u(t) ).
+    Ve = data(1:end, 4);        % Tensión de alimentación (Ve(t) = u(t)).
     Vr = data(1:end, 5);        % Caída de tensión en la resistencia, salida.
 
 %   Realizo los gráficos de las variables dadas en el archivo de excel para
 % observar el comportamiento del sistema:
 figure(1);
-subplot(4,1,1);                 % Grafico la corriente I(t)
+subplot(4,1,1);                 % Grafico la corriente I(t).
 plot(t, I);
 title('Corriente');
 xlabel('Tiempo [s]');
 ylabel('Corriente [A]');
 grid on
 
-subplot(4,1,2);                 % Grafico la tensión del capacitor Vc(t)
+subplot(4,1,2);                 % Grafico la tensión del capacitor Vc(t).
 plot(t, Vc, 'red');
 title('Caida de tensión en el capacitor');
 xlabel('Tiempo [s]');
 ylabel('Voltaje [V]');
 grid on
 
-subplot(4,1,3);                  % Grafico la tensión de entrada Ve(t) = u(t)
+subplot(4,1,3);                  % Grafico la tensión de entrada Ve(t) = u(t).
 plot(t, Ve, 'blue');
 title('Tensión de entrada');
 xlabel('Tiempo [s]');
@@ -44,7 +44,7 @@ ylabel('Voltaje [V]');
 grid on
 
 subplot(4,1,4);                  % Grafico la caida de tensión en la resistencia
-plot(t, Vr, 'green');            % Vr(t)
+plot(t, Vr, 'green');            % Vr(t).
 title('Caída de tensión en la resistencia');
 xlabel('Tiempo [s]');
 ylabel('Voltaje [V]');
@@ -93,10 +93,12 @@ grid on
 %   Chen nos indica que debemos elegir 3 puntos igualmente espaciados para
 % aplicar su método. Para ello y observando la tabla del Excel + gráficos, vemos
 % que para:
+
 %      t = 0,0100 [s] ---> y(t) = Vc(t) = 0 [V]
 %      t = 0,0130 [s] ---> y(t) = Vc(t) = 11,9759 [V]
 %      t = 0,0193 [s] ---> y(t) = Vc(t) = 12 [V]
 %      t = 0,0500 [s] ---> y(t) = Vc(t) = 12 [V]
+
 %   Se observa que donde ocurre el transitorio de al función se da en el
 % intervalo [0,1 ; 0,13] donde se tienen 300 valores según la tabla de excel de
 % entremedio. Se proponen los siguientes puntos de operación para el método de
@@ -152,6 +154,7 @@ grid on;
 %   Se observa un error entre ambas gráficas, el cual a fines prácticos, es casi
 % nulo, lo que es un buen indicador de que el valor de los puntos escogidos y su
 % separación es correcta para aproximar y obtener la función de transferencia.
+
 %   Con esta función en mente, podemos proceder a obtener los parámetros R, L y
 % C del circuito planteado, donde:
 

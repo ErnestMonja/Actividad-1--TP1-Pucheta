@@ -64,6 +64,7 @@ u(t > 0.01) = 12*(-1).^(floor((t(t > 0.01) - 0.01)/0.01));
 %   Esta función u(t>0.01) esta compuesta por una serie que alterna en valores
 % negativos con valores positivos gracias al termino (-1)^n donde n se define
 % en base a la función floor.
+
 %   Una vez obtenidos los parámetros para la simulación, tendremos que elegir
 % las condiciones iniciales del sistema, donde se tendrá que el capacitor no
 % tiene una tensión inicial tanto como el inductor no tiene una corriente
@@ -128,11 +129,14 @@ grid on
 % Esta oscilación se debe a la elección de parámetros R, L y C del circuito,
 % donde si este circuito es simulado en un simulador del tipo QUCS, PSpice o
 % Multisim, se obtendrán resultados similares para estas variables.
-%   Se tiene que tras estudiar este caso de estudio en algún simulador de  
-% circuitos, el parámetro de inductor L es quien esta afectando y provocando las 
-% excesivas oscilaciones. Reducir este parámetro mejora la respuesta del sistema 
+
+%   Se tiene que tras estudiar este caso de estudio en algún simulador de
+% circuitos, el parámetro de inductor L es quien esta afectando y provocando las
+% excesivas oscilaciones. Reducir este parámetro mejora la respuesta del sistema
 % y se recomienda modificar este código en la línea 11 para observar tal
 % aclaración:
+
 % l = 5*10^(-3)
+
 %   Este cambio de inductancia generará que las variables a medir se asimilen
 % bastante más a los gráficos dados por la consigna del ejercicio.

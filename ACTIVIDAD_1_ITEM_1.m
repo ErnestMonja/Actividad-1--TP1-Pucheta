@@ -30,8 +30,8 @@ polo_dom     = min(modulo_polos)
 polo_nod_dom = max(modulo_polos)
 
 %   Se observan 2 polos complejos conjugados de valores: -220 +- j(927,73). Se
-% elije como tiempo de muestreo t_r al que responda a las dinámicas mas rápidas
-% del sistema, para ello el módulo del polo más cercano al orígen de la función
+% elije como tiempo de muestreo t_r al que responda a las dinámicas más rápidas
+% del sistema, para ello el módulo del polo más lejano al orígen de la función
 % G(s), si bien es indiferente tomar un polo o el otro se tiene que:
 t_r = -log(0.95)/(abs(polo_nod_dom))       % t_r = 2,3315 x 10^(-4) [s]
 t_d = abs((2*pi/imag(min(polos)))/100)     % t_d = 6,7726 x 10^(-5) [s]
@@ -107,7 +107,7 @@ ylabel('Voltaje [V]');
 grid on
 
 subplot(4,1,3);                            % Grafico la tensión de entrada Ve(t)
-plot(t, u, 'blue');                       % = u(t)
+plot(t, u, 'blue');                        % = u(t)
 title('Tensión de entrada');
 xlabel('Tiempo [s]');
 ylabel('Voltaje [V]');
@@ -125,6 +125,14 @@ grid on
 
 %   Se observa que las corrientes y las tensiones tanto de salida (caída de la
 % resistencia) como la de la caída de tensión del capacitor son muy oscilantes.
-% Esta oscilación se debe a la elección de parámetros R, L y C del circuito,  
-% donde si este circuito es simulado en un simulador del tipo QUCS, PSpice o 
+% Esta oscilación se debe a la elección de parámetros R, L y C del circuito,
+% donde si este circuito es simulado en un simulador del tipo QUCS, PSpice o
 % Multisim, se obtendrán resultados similares para estas variables.
+%   Se tiene que tras estudiar este caso de estudio en algún simulador de  
+% circuitos, el parámetro de inductor L es quien esta afectando y provocando las 
+% excesivas oscilaciones. Reducir este parámetro mejora la respuesta del sistema 
+% y se recomienda modificar este código en la línea 11 para observar tal
+% aclaración:
+% l = 5*10^(-3)
+%   Este cambio de inductancia generará que las variables a medir se asimilen
+% bastante más a los gráficos dados por la consigna del ejercicio.

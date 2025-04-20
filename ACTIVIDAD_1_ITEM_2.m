@@ -64,7 +64,7 @@ ind_util = find(t >= 0.01 & t <= 0.025);
 t_util = t(ind_util) - delay;
 Vc_util = Vc(ind_util);
 
-% Grafico a Vc_util:
+%   Grafico a Vc_util:
 figure(2);
 plot(t_util, Vc_util, 'red');
 title('Caida de tensión en el capacitor (respuesta a una entrada de 12V)');
